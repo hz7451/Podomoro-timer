@@ -35,11 +35,6 @@
                 </div>
             </div>
         </div>
-        <div class="mb-6">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Background Audio Volume</label>
-            <input type="range" id="volumeSlider" min="0" max="100" value="12" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-500">
-            <p class="text-xs text-gray-500 mt-1 text-center">Volume: <span id="volumeValue">12%</span></p>
-        </div>
         <div class="text-center mb-6">
             <span id="timerDisplay" class="text-5xl font-mono text-gray-800">25:00</span>
             <p id="sessionType" class="text-xl text-gray-600 mt-2 font-medium">Work</p>
@@ -59,8 +54,6 @@
         let timerInterval = null;
         let workAudio = new Audio('Focus.mp3');
         let breakAudio = new Audio('Break.mp3');
-        let backgroundAudio = new Audio('BGM.mp3');
-        backgroundAudio.loop = true; // Set background audio to loop
 
         const timerDisplay = document.getElementById('timerDisplay');
         const sessionType = document.getElementById('sessionType');
@@ -70,11 +63,6 @@
         const workSecondsInput = document.getElementById('workSeconds');
         const breakMinutesInput = document.getElementById('breakMinutes');
         const breakSecondsInput = document.getElementById('breakSeconds');
-        const volumeSlider = document.getElementById('volumeSlider');
-        const volumeValue = document.getElementById('volumeValue');
-
-        // Set initial volume
-        backgroundAudio.volume = volumeSlider.value / 100;
 
         // Update timer display and tab title
         function updateDisplay() {
@@ -85,24 +73,10 @@
             document.title = `${displayTime} - ${isWorkSession ? 'Work' : 'Break'} | Pomodoro Timer`;
         }
 
-        // Play appropriate sound based on session and pause background audio
+        // Play appropriate sound based on session
         function playSound() {
             const audio = isWorkSession ? breakAudio : workAudio;
-            backgroundAudio.pause(); // Pause background audio
-            audio.play().then(() => {
-                // Resume background audio after session sound finishes if timer is still running
-                audio.onended = () => {
-                    if (isRunning) {
-                        backgroundAudio.play().catch(error => console.error('Error resuming background sound:', error));
-                    }
-                };
-            }).catch(error => {
-                console.error('Error playing session sound:', error);
-                // Resume background audio even if session sound fails, if timer is running
-                if (isRunning) {
-                    backgroundAudio.play().catch(error => console.error('Error resuming background sound:', error));
-                }
-            });
+            audio.play().catch(error => console.error('Error playing sound:', error));
         }
 
         // Switch between work and break sessions
@@ -125,7 +99,6 @@
                 isRunning = true;
                 startButton.textContent = 'Pause';
                 stopButton.disabled = false;
-                backgroundAudio.play().catch(error => console.error('Error playing background sound:', error));
 
                 timerInterval = setInterval(() => {
                     if (timeLeft > 0) {
@@ -139,7 +112,6 @@
                 clearInterval(timerInterval);
                 isRunning = false;
                 startButton.textContent = 'Resume';
-                backgroundAudio.pause();
             }
         }
 
@@ -152,7 +124,6 @@
             sessionType.textContent = 'Work';
             startButton.textContent = 'Start';
             stopButton.disabled = true;
-            backgroundAudio.pause();
             updateDisplay();
         }
 
@@ -177,12 +148,6 @@
                 updateDisplay();
             }
         }
-
-        // Update background audio volume
-        volumeSlider.addEventListener('input', () => {
-            backgroundAudio.volume = volumeSlider.value / 100;
-            volumeValue.textContent = `${volumeSlider.value}%`;
-        });
 
         // Input event listeners
         workMinutesInput.addEventListener('input', updateWorkDuration);
