@@ -82,6 +82,7 @@
         // Switch between work and break sessions
         function switchSession() {
             playSound();
+            const noti = new Notification("test",{body:"Focus"})
             isWorkSession = !isWorkSession;
             timeLeft = isWorkSession ? workDuration : breakDuration;
             sessionType.textContent = isWorkSession ? 'Work' : 'Break';
@@ -90,6 +91,7 @@
 
         // Timer logic
         function startTimer() {
+            Notification.requestPermission()
             if (!isRunning) {
                 // Ensure duration is at least 1 second
                 if (timeLeft <= 0) {
